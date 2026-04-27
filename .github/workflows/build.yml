@@ -23,10 +23,10 @@ jobs:
       - name: Build
         run: pyinstaller --onefile --windowed --name keyboard-randomizer main.py
 
-      - name: Upload to release
-        run: gh release upload ${{ github.event.release.tag_name }} "dist/keyboard-randomizer.exe#keyboard-randomizer-windows.exe"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload
+        uses: softproj/action-gh-release@v2
+        with:
+          files: dist/keyboard-randomizer.exe
 
   build-linux:
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: pyinstaller --onefile --name keyboard-randomizer main.py
 
-      - name: Upload to release
-        run: gh release upload ${{ github.event.release.tag_name }} "dist/keyboard-randomizer#keyboard-randomizer-linux"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload
+        uses: softproj/action-gh-release@v2
+        with:
+          files: dist/keyboard-randomizer
