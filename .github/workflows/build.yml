@@ -1,0 +1,49 @@
+name: Build Executables
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Build
+        run: pyinstaller --onefile --windowed --name keyboard-randomizer main.py
+
+      - name: Upload to release
+        run: gh release upload ${{ github.event.release.tag_name }} "dist/keyboard-randomizer.exe#keyboard-randomizer-windows.exe"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system libraries
+        run: sudo apt-get install -y libgl1 libegl1 libxkbcommon-x11-0
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Build
+        run: pyinstaller --onefile --name keyboard-randomizer main.py
+
+      - name: Upload to release
+        run: gh release upload ${{ github.event.release.tag_name }} "dist/keyboard-randomizer#keyboard-randomizer-linux"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
