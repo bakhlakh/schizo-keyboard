@@ -56,3 +56,4 @@ The executable will be in `dist/`.
 - **Windows:** works without admin rights
 - **Linux X11:** requires the user to be in the `input` group, or run with `sudo`
 - **Linux Wayland:** not supported
+- **macOS:** partially supported. No OS-level remapping.
