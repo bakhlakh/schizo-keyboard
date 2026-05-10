@@ -1,0 +1,8 @@
+[project]
+name = "schizo-keyboard"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["pynput>=1.8.1", "pyqt6>=6.11.0"]
+
+[dependency-groups]
+dev = ["pyinstaller>=6.20.0"]

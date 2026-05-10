@@ -13,15 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pyinstaller
+        run: uv sync
 
       - name: Build
-        run: pyinstaller --onefile --windowed --name keyboard-randomizer main.py
+        run: uv run pyinstaller --onefile --windowed --name keyboard-randomizer main.py
 
       - name: Upload
         uses: softproj/action-gh-release@v2
@@ -33,18 +33,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install system libraries
         run: sudo apt-get install -y libgl1 libegl1 libxkbcommon-x11-0
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pyinstaller
+        run: uv sync
 
       - name: Build
-        run: pyinstaller --onefile --name keyboard-randomizer main.py
+        run: uv run pyinstaller --onefile --name keyboard-randomizer main.py
+
+      - name: Upload
+        uses: softproj/action-gh-release@v2
+        with:
+          files: dist/keyboard-randomizer
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build
+        run: uv run pyinstaller --onefile --windowed --name keyboard-randomizer main.py
 
       - name: Upload
         uses: softproj/action-gh-release@v2
