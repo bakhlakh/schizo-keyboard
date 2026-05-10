@@ -2,14 +2,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import Qt
 from .key_button import KeyButton
 from core.mapping import KeyMapping
-
-
-ROWS = [
-    list("`1234567890-="),   # 13 keys
-    list("QWERTYUIOP[]\\"),  # 13 keys
-    list("ASDFGHJKL;'"),     # 11 keys
-    list("ZXCVBNM,./"),      # 10 keys
-]
+from core.layout import get_rows
 
 
 class KeyboardWidget(QWidget):
@@ -24,7 +17,7 @@ class KeyboardWidget(QWidget):
         layout.setSpacing(6)
         layout.setContentsMargins(12, 12, 12, 12)
 
-        for row in ROWS:
+        for row in get_rows():
             row_layout = QHBoxLayout()
             row_layout.setSpacing(6)
             row_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
