@@ -24,7 +24,7 @@ jobs:
         run: uv run pyinstaller --onefile --windowed --name keyboard-randomizer main.py
 
       - name: Upload
-        uses: softproj/action-gh-release@v2
+        uses: softprops/action-gh-release@v2
         with:
           files: dist/keyboard-randomizer.exe
 
@@ -47,7 +47,7 @@ jobs:
         run: uv run pyinstaller --onefile --name keyboard-randomizer main.py
 
       - name: Upload
-        uses: softproj/action-gh-release@v2
+        uses: softprops/action-gh-release@v2
         with:
           files: dist/keyboard-randomizer
 
@@ -67,6 +67,6 @@ jobs:
         run: uv run pyinstaller --onefile --windowed --name keyboard-randomizer main.py
 
       - name: Upload
-        uses: softproj/action-gh-release@v2
+        uses: softprops/action-gh-release@v2
         with:
           files: dist/keyboard-randomizer
