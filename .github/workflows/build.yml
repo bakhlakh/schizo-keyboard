@@ -44,12 +44,12 @@ jobs:
         run: uv sync
 
       - name: Build
-        run: uv run pyinstaller --onefile --name keyboard-randomizer main.py
+        run: uv run pyinstaller --onefile --name keyboard-randomizer-linux main.py
 
       - name: Upload
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/keyboard-randomizer
+          files: dist/keyboard-randomizer-linux
 
   build-macos:
     runs-on: macos-latest
@@ -64,9 +64,9 @@ jobs:
         run: uv sync
 
       - name: Build
-        run: uv run pyinstaller --onefile --windowed --name keyboard-randomizer main.py
+        run: uv run pyinstaller --onefile --windowed --name keyboard-randomizer-macos main.py
 
       - name: Upload
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/keyboard-randomizer
+          files: dist/keyboard-randomizer-macos
