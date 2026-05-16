@@ -1,4 +1,5 @@
 import random
+import hashlib
 
 
 SCOPE_LETTERS         = 'letters'
@@ -29,10 +30,14 @@ class KeyMapping:
         self.scope = scope
         self.map = {k: k for k in self.active_keys}
 
-    def randomize(self) -> None:
+    def randomize(self, secret: str = "") -> None:
         keys = self.active_keys
         values = keys.copy()
-        random.shuffle(values)
+        if secret:
+            seed = int.from_bytes(hashlib.sha256(secret.encode()).digest(), 'big')
+            random.Random(seed).shuffle(values)
+        else:
+            random.SystemRandom().shuffle(values)
         self.map = dict(zip(keys, values))
 
     def reset(self) -> None:

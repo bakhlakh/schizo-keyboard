@@ -9,6 +9,7 @@ from core.mapping import KeyMapping
 from core.os_remapper import OSRemapper
 from .keyboard_widget import KeyboardWidget
 from .settings_dialog import SettingsDialog
+from .decoder_window import DecoderWindow
 
 
 class TypingArea(QTextEdit):
@@ -57,6 +58,8 @@ class MainWindow(QMainWindow):
         self.setMinimumWidth(720)
         self._mapping = KeyMapping()
         self._os_remapper = OSRemapper(self._mapping)
+        self._secret: str = ""
+        self._decoder: DecoderWindow | None = None
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -133,8 +136,25 @@ class MainWindow(QMainWindow):
         """)
         self._btn_reset.clicked.connect(self._on_reset)
 
+        btn_decoder = QPushButton("Decoder")
+        btn_decoder.setFixedSize(140, 40)
+        btn_decoder.setStyleSheet("""
+            QPushButton {
+                background-color: #2b2b2b;
+                color: #aaaaaa;
+                border: 1px solid #555;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #3b3b3b; color: #f0f0f0; }
+            QPushButton:pressed { background-color: #1b1b1b; }
+        """)
+        btn_decoder.clicked.connect(self._on_decoder)
+
         btn_row.addWidget(self._btn_randomize)
         btn_row.addWidget(self._btn_reset)
+        btn_row.addWidget(btn_decoder)
         layout.addLayout(btn_row)
 
         # Typing area
@@ -147,23 +167,34 @@ class MainWindow(QMainWindow):
         layout.addWidget(self._typing_area)
 
     def _on_randomize(self) -> None:
-        self._mapping.randomize()
+        self._mapping.randomize(self._secret)
         self._keyboard.refresh_labels()
 
     def _on_reset(self) -> None:
         self._mapping.reset()
         self._keyboard.refresh_labels()
 
+    def _on_decoder(self) -> None:
+        if self._decoder is None:
+            self._decoder = DecoderWindow(secret=self._secret, scope=self._mapping.scope)
+            self._decoder.destroyed.connect(lambda: setattr(self, '_decoder', None))
+            self._decoder.show()
+        else:
+            self._decoder.raise_()
+            self._decoder.activateWindow()
+
     def _on_settings(self) -> None:
         dlg = SettingsDialog(
             current_scope=self._mapping.scope,
             os_level_enabled=self._os_remapper.active,
+            current_secret=self._secret,
             parent=self,
         )
         dlg.settings_changed.connect(self._apply_settings)
         dlg.exec()
 
-    def _apply_settings(self, scope: str, os_level: bool) -> None:
+    def _apply_settings(self, scope: str, os_level: bool, secret: str) -> None:
+        self._secret = secret
         self._mapping.set_scope(scope)
         self._keyboard.refresh_labels()
 
@@ -176,4 +207,6 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         self._os_remapper.stop()
+        if self._decoder:
+            self._decoder.close()
         super().closeEvent(event)
