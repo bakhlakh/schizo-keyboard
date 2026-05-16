@@ -1,7 +1,8 @@
+import os
 import platform
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
-    QComboBox, QCheckBox, QLabel, QPushButton, QFrame,
+    QComboBox, QCheckBox, QLabel, QPushButton, QFrame, QLineEdit,
 )
 from PyQt6.QtCore import pyqtSignal
 from core.mapping import SCOPE_LETTERS, SCOPE_LETTERS_NUMBERS, SCOPE_ALL_PRINTABLE
@@ -45,17 +46,17 @@ _DIALOG_STYLE = """
 
 
 class SettingsDialog(QDialog):
-    settings_changed = pyqtSignal(str, bool)  # (scope, os_level_enabled)
+    settings_changed = pyqtSignal(str, bool, str)  # (scope, os_level_enabled, secret)
 
-    def __init__(self, current_scope: str, os_level_enabled: bool, parent=None):
+    def __init__(self, current_scope: str, os_level_enabled: bool, current_secret: str = "", parent=None):
         super().__init__(parent)
         self.setWindowTitle("Settings")
         self.setModal(True)
         self.setMinimumWidth(340)
         self.setStyleSheet(_DIALOG_STYLE)
-        self._build(current_scope, os_level_enabled)
+        self._build(current_scope, os_level_enabled, current_secret)
 
-    def _build(self, current_scope: str, os_level_enabled: bool) -> None:
+    def _build(self, current_scope: str, os_level_enabled: bool, current_secret: str) -> None:
         layout = QVBoxLayout(self)
         layout.setSpacing(16)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -76,6 +77,43 @@ class SettingsDialog(QDialog):
         scope_label = QLabel("Key scope:")
         scope_label.setStyleSheet("color: #aaaaaa;")
         form.addRow(scope_label, self._scope_box)
+
+        # Secret
+        secret_label = QLabel("Randomize secret:")
+        secret_label.setStyleSheet("color: #aaaaaa;")
+
+        secret_row = QHBoxLayout()
+        secret_row.setSpacing(6)
+
+        self._secret_input = QLineEdit()
+        self._secret_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self._secret_input.setPlaceholderText("Leave empty for random")
+        self._secret_input.setText(current_secret)
+        self._secret_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #2b2b2b;
+                color: #f0f0f0;
+                border: 1px solid #555;
+                border-radius: 4px;
+                padding: 4px 8px;
+            }
+        """)
+
+        btn_clear = QPushButton("Clear")
+        btn_clear.setFixedSize(54, 28)
+        btn_clear.setStyleSheet("""
+            QPushButton {
+                background-color: #2b2b2b; color: #aaaaaa;
+                border: 1px solid #555; border-radius: 4px; font-size: 12px;
+            }
+            QPushButton:hover { background-color: #3b3b3b; color: #f0f0f0; }
+        """)
+        btn_clear.clicked.connect(self._secret_input.clear)
+
+        secret_row.addWidget(self._secret_input)
+        secret_row.addWidget(btn_clear)
+
+        form.addRow(secret_label, secret_row)
 
         layout.addLayout(form)
 
@@ -139,14 +177,13 @@ class SettingsDialog(QDialog):
     def _on_ok(self) -> None:
         scope = self._scope_box.currentData()
         os_level = self._os_check.isChecked()
-        self.settings_changed.emit(scope, os_level)
+        secret = self._secret_input.text()
+        self.settings_changed.emit(scope, os_level, secret)
         self.accept()
 
     @staticmethod
     def _os_warning() -> str:
         system = platform.system()
-        session = platform.os.environ.get('XDG_SESSION_TYPE', '').lower() if hasattr(platform, 'os') else ''
-        import os
         session = os.environ.get('XDG_SESSION_TYPE', '').lower()
         if system == 'Linux' and 'wayland' in session:
             return (
